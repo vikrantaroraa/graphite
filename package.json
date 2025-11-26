@@ -1,6 +1,6 @@
 {
-  "name": "wxt-starter",
-  "description": "manifest.json description",
+  "name": "graphite",
+  "description": "Apply dark mode to websites and webpages",
   "private": true,
   "version": "0.0.0",
   "type": "module",
