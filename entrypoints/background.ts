@@ -4,7 +4,7 @@ export default defineBackground(() => {
   // Create main parent item
   browser.contextMenus.create({
     id: "darkRoot",
-    title: "Dark Mode Options",
+    title: "Graphite",
     contexts: ["all"],
   });
 
@@ -28,7 +28,7 @@ export default defineBackground(() => {
   browser.contextMenus.create({
     id: "revert",
     parentId: "darkRoot",
-    title: "Revert to White",
+    title: "Revert",
     contexts: ["all"],
   });
 
