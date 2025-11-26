@@ -1,16 +1,55 @@
+let mediaObserver: MutationObserver | null = null;
+
 export default defineContentScript({
   matches: ["<all_urls>"],
   main() {
     browser.runtime.onMessage.addListener((message) => {
+      // dark mode
       if (message.command === "dark") {
         document.documentElement.style.filter = "invert(1) hue-rotate(180deg)";
       }
 
+      // dark mode with image fix
       if (message.command === "darkFix") {
-        // Apply page dark mode
+        // apply global invert
         document.documentElement.style.filter = "invert(1) hue-rotate(180deg)";
 
-        // Revert images/videos/icons back to normal
+        const mediaSelectors = [
+          "img",
+          "picture",
+          "video",
+          "svg",
+          "canvas",
+          "iframe",
+          "embed",
+        ];
+
+        // function to fix media
+        const fixMedia = () => {
+          mediaSelectors.forEach((selector) => {
+            document.querySelectorAll(selector).forEach((el) => {
+              (el as HTMLElement).style.filter = "invert(1) hue-rotate(180deg)";
+            });
+          });
+        };
+
+        // fix initial media
+        fixMedia();
+
+        // watch for dynamically loaded media
+        if (mediaObserver) mediaObserver.disconnect();
+        mediaObserver = new MutationObserver(fixMedia);
+        mediaObserver.observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+      }
+
+      // revert back to normal mode
+      if (message.command === "revert") {
+        document.documentElement.style.filter = "";
+
+        // remove media filters
         const mediaSelectors = [
           "img",
           "picture",
@@ -23,24 +62,15 @@ export default defineContentScript({
 
         mediaSelectors.forEach((selector) => {
           document.querySelectorAll(selector).forEach((el) => {
-            (el as HTMLElement).style.filter = "invert(1) hue-rotate(180deg)";
+            (el as HTMLElement).style.filter = "";
           });
         });
 
-        // Fix future images loaded dynamically
-        const observer = new MutationObserver(() => {
-          mediaSelectors.forEach((selector) => {
-            document.querySelectorAll(selector).forEach((el) => {
-              (el as HTMLElement).style.filter = "invert(1) hue-rotate(180deg)";
-            });
-          });
-        });
-
-        observer.observe(document.body, { childList: true, subtree: true });
-      }
-
-      if (message.command === "revert") {
-        document.documentElement.style.filter = "";
+        // stop observer
+        if (mediaObserver) {
+          mediaObserver.disconnect();
+          mediaObserver = null;
+        }
       }
     });
   },
