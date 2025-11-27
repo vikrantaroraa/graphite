@@ -17,11 +17,14 @@ export default defineContentScript({
         const mediaSelectors = [
           "img",
           "picture",
+          "picture img", // threads web app renders the image with an img tag inside a picture tag
+          "source",
           "video",
           "svg",
           "canvas",
           "iframe",
           "embed",
+          "object",
         ];
 
         // function to fix media
@@ -53,11 +56,14 @@ export default defineContentScript({
         const mediaSelectors = [
           "img",
           "picture",
+          "picture img", // threads web app renders the image with an img tag inside a picture tag
+          "source",
           "video",
           "svg",
           "canvas",
           "iframe",
           "embed",
+          "object",
         ];
 
         mediaSelectors.forEach((selector) => {
