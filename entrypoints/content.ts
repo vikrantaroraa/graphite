@@ -18,30 +18,47 @@ export default defineContentScript({
         "object",
       ];
 
-      // function to fix CSS background images
+      // Helper function to check if element OR pseudo-element has a background image
+      const hasBackgroundImage = (style: CSSStyleDeclaration) => {
+        return (
+          style.backgroundImage &&
+          style.backgroundImage !== "none" &&
+          style.backgroundImage.includes("url")
+        );
+      };
+
+      // Fix real + pseudo-element background images
       const fixBackgroundImages = () => {
         document.querySelectorAll("*").forEach((el) => {
-          const style = window.getComputedStyle(el);
+          const normal = window.getComputedStyle(el);
+          const before = window.getComputedStyle(el, "::before");
+          const after = window.getComputedStyle(el, "::after");
 
-          // if no background image, skip
-          if (!style.backgroundImage || style.backgroundImage === "none")
-            return;
+          const hasAnyBg =
+            hasBackgroundImage(normal) ||
+            hasBackgroundImage(before) ||
+            hasBackgroundImage(after);
 
-          // apply invert to compensate page invert
+          if (!hasAnyBg) return;
+
           (el as HTMLElement).style.filter = "invert(1) hue-rotate(180deg)";
         });
       };
 
-      // function to revert CSS background images
+      // Function to revert background-image inversion
       const revertBackgroundImages = () => {
         document.querySelectorAll("*").forEach((el) => {
-          const style = window.getComputedStyle(el);
+          const normal = window.getComputedStyle(el);
+          const before = window.getComputedStyle(el, "::before");
+          const after = window.getComputedStyle(el, "::after");
 
-          // if no background image, skip
-          if (!style.backgroundImage || style.backgroundImage === "none")
-            return;
+          const hasAnyBg =
+            hasBackgroundImage(normal) ||
+            hasBackgroundImage(before) ||
+            hasBackgroundImage(after);
 
-          // remove inversion
+          if (!hasAnyBg) return;
+
           (el as HTMLElement).style.filter = "";
         });
       };
