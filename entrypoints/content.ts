@@ -19,11 +19,19 @@ export default defineContentScript({
       ];
 
       // Helper function to check if element OR pseudo-element has a background image
-      const hasBackgroundImage = (style: CSSStyleDeclaration) => {
+      // const hasBackgroundImage = (style: CSSStyleDeclaration) => {
+      //   return (
+      //     style.backgroundImage &&
+      //     style.backgroundImage !== "none" &&
+      //     style.backgroundImage.includes("url")
+      //   );
+      // };
+
+      const hasAnyImageContent = (style: CSSStyleDeclaration) => {
         return (
-          style.backgroundImage &&
-          style.backgroundImage !== "none" &&
-          style.backgroundImage.includes("url")
+          (style.backgroundImage && style.backgroundImage.includes("url")) ||
+          (style.maskImage && style.maskImage.includes("url")) ||
+          (style.listStyleImage && style.listStyleImage.includes("url"))
         );
       };
 
@@ -34,12 +42,17 @@ export default defineContentScript({
           const before = window.getComputedStyle(el, "::before");
           const after = window.getComputedStyle(el, "::after");
 
-          const hasAnyBg =
-            hasBackgroundImage(normal) ||
-            hasBackgroundImage(before) ||
-            hasBackgroundImage(after);
+          // const hasAnyBg =
+          //   hasBackgroundImage(normal) ||
+          //   hasBackgroundImage(before) ||
+          //   hasBackgroundImage(after);
 
-          if (!hasAnyBg) return;
+          const hasAnyImg =
+            hasAnyImageContent(normal) ||
+            hasAnyImageContent(before) ||
+            hasAnyImageContent(after);
+
+          if (!hasAnyImg) return;
 
           (el as HTMLElement).style.filter = "invert(1) hue-rotate(180deg)";
         });
@@ -52,12 +65,17 @@ export default defineContentScript({
           const before = window.getComputedStyle(el, "::before");
           const after = window.getComputedStyle(el, "::after");
 
-          const hasAnyBg =
-            hasBackgroundImage(normal) ||
-            hasBackgroundImage(before) ||
-            hasBackgroundImage(after);
+          // const hasAnyBg =
+          //   hasBackgroundImage(normal) ||
+          //   hasBackgroundImage(before) ||
+          //   hasBackgroundImage(after);
 
-          if (!hasAnyBg) return;
+          const hasAnyImg =
+            hasAnyImageContent(normal) ||
+            hasAnyImageContent(before) ||
+            hasAnyImageContent(after);
+
+          if (!hasAnyImg) return;
 
           (el as HTMLElement).style.filter = "";
         });
