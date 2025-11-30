@@ -7,7 +7,6 @@ export default defineContentScript({
       // media selectors to target different media elements on the page
       const mediaSelectors = [
         "img",
-        "picture",
         "picture img", // threads web app renders the image with an <img> tag inside a <picture> tag
         "source",
         "video",
