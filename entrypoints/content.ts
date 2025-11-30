@@ -18,22 +18,6 @@ export default defineContentScript({
         "object",
       ];
 
-      // const hasBackgroundImage = (style: CSSStyleDeclaration) => {
-      //   return (
-      //     style.backgroundImage &&
-      //     style.backgroundImage !== "none" &&
-      //     style.backgroundImage.includes("url")
-      //   );
-      // };
-
-      // const hasAnyImageContent = (style: CSSStyleDeclaration) => {
-      //   return (
-      //     (style.backgroundImage && style.backgroundImage.includes("url")) ||
-      //     (style.maskImage && style.maskImage.includes("url")) ||
-      //     (style.listStyleImage && style.listStyleImage.includes("url"))
-      //   );
-      // };
-
       // Note:- list-style-image must NOT be read for pseudo-elements
       // Pseudo-elements (::before, ::after) sometimes simulate bullets using background-image.
       // If we don't differentiate pseudo-elements, we will incorrectly invert bullets and decorations.
@@ -55,28 +39,6 @@ export default defineContentScript({
 
         return hasBg || hasMask || hasList;
       };
-
-      // const fixBackgroundImages = () => {
-      //   document.querySelectorAll("*").forEach((el) => {
-      //     const normal = window.getComputedStyle(el);
-      //     const before = window.getComputedStyle(el, "::before");
-      //     const after = window.getComputedStyle(el, "::after");
-
-      //     // const hasAnyBg =
-      //     //   hasBackgroundImage(normal) ||
-      //     //   hasBackgroundImage(before) ||
-      //     //   hasBackgroundImage(after);
-
-      //     const hasAnyImg =
-      //       hasAnyImageContent(normal) ||
-      //       hasAnyImageContent(before) ||
-      //       hasAnyImageContent(after);
-
-      //     if (!hasAnyImg) return;
-
-      //     (el as HTMLElement).style.filter = "invert(1) hue-rotate(180deg)";
-      //   });
-      // };
 
       // Fix real + pseudo-element background images
       const fixBackgroundImages = () => {
@@ -100,28 +62,6 @@ export default defineContentScript({
           (el as HTMLElement).style.filter = "invert(1) hue-rotate(180deg)";
         });
       };
-
-      // const revertBackgroundImages = () => {
-      //   document.querySelectorAll("*").forEach((el) => {
-      //     const normal = window.getComputedStyle(el);
-      //     const before = window.getComputedStyle(el, "::before");
-      //     const after = window.getComputedStyle(el, "::after");
-
-      //     // const hasAnyBg =
-      //     //   hasBackgroundImage(normal) ||
-      //     //   hasBackgroundImage(before) ||
-      //     //   hasBackgroundImage(after);
-
-      //     const hasAnyImg =
-      //       hasAnyImageContent(normal) ||
-      //       hasAnyImageContent(before) ||
-      //       hasAnyImageContent(after);
-
-      //     if (!hasAnyImg) return;
-
-      //     (el as HTMLElement).style.filter = "";
-      //   });
-      // };
 
       // Function to revert background-image inversion
       const revertBackgroundImages = () => {
