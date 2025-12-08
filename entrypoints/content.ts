@@ -17,6 +17,11 @@ export default defineContentScript({
         "object",
       ];
 
+      // --- NEW: Detect whether an element contains real media inside it ---
+      const containsMedia = (el: Element) => {
+        return el.querySelector("img, video, svg, canvas") !== null;
+      };
+
       // Note:- list-style-image must NOT be read for pseudo-elements
       // Pseudo-elements (::before, ::after) sometimes simulate bullets using background-image.
       // If we don't differentiate pseudo-elements, we will incorrectly invert bullets and decorations.
@@ -56,6 +61,11 @@ export default defineContentScript({
           // Avoid accidental bullet inversion (critical!)
           if (tag === "li") return;
 
+          // NEW FIX:
+          // If this element contains real media (img/video/canvas/svg),
+          // we MUST NOT apply invert on the parent, otherwise it double-inverts children.
+          if (containsMedia(el)) return;
+
           if (!hasAnyImg) return;
 
           (el as HTMLElement).style.filter = "invert(1) hue-rotate(180deg)";
@@ -77,6 +87,9 @@ export default defineContentScript({
             hasAnyImageContent(after, tag, true);
 
           if (tag === "li") return;
+
+          // Same rule for revert
+          if (containsMedia(el)) return;
 
           if (!hasAnyImg) return;
 
