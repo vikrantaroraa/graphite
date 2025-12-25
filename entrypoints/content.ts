@@ -155,7 +155,140 @@
 //   },
 // });
 
-let mediaObserver: MutationObserver | null = null;
+// let mediaObserver: MutationObserver | null = null;
+
+// export default defineContentScript({
+//   matches: ["<all_urls>"],
+//   main() {
+//     browser.runtime.onMessage.addListener((message) => {
+//       injectStyles();
+
+//       const mediaSelectors = [
+//         "img",
+//         "picture img",
+//         "source",
+//         "video",
+//         "svg",
+//         "canvas",
+//         "iframe",
+//         "embed",
+//         "object",
+//       ];
+
+//       const containsMedia = (el: Element) => {
+//         return el.querySelector("img, video, svg, canvas") !== null;
+//       };
+
+//       const hasAnyImageContent = (
+//         style: CSSStyleDeclaration,
+//         tag: string,
+//         isPseudo: boolean
+//       ) => {
+//         const hasBg = style.backgroundImage?.includes("url");
+//         const hasMask = style.maskImage?.includes("url");
+
+//         const hasList =
+//           !isPseudo &&
+//           (tag === "ul" || tag === "ol") &&
+//           style.listStyleImage?.includes("url");
+
+//         return hasBg || hasMask || hasList;
+//       };
+
+//       const fixBackgroundImages = () => {
+//         document.querySelectorAll("*").forEach((el) => {
+//           const tag = el.tagName.toLowerCase();
+
+//           if (tag === "li") return;
+//           if (containsMedia(el)) return;
+
+//           const normal = getComputedStyle(el);
+//           const before = getComputedStyle(el, "::before");
+//           const after = getComputedStyle(el, "::after");
+
+//           const hasAnyImg =
+//             hasAnyImageContent(normal, tag, false) ||
+//             hasAnyImageContent(before, tag, true) ||
+//             hasAnyImageContent(after, tag, true);
+
+//           if (!hasAnyImg) return;
+
+//           el.classList.add("darkfix-bg");
+//         });
+//       };
+
+//       const revertBackgroundImages = () => {
+//         document.querySelectorAll(".darkfix-bg").forEach((el) => {
+//           el.classList.remove("darkfix-bg");
+//         });
+//       };
+
+//       // --- DARK MODE ---
+//       if (message.command === "dark") {
+//         document.documentElement.classList.add("darkfix-root");
+//       }
+
+//       // --- DARK MODE WITH IMAGE FIX ---
+//       if (message.command === "darkFix") {
+//         document.documentElement.classList.add("darkfix-root");
+
+//         const fixMedia = () => {
+//           mediaSelectors.forEach((selector) => {
+//             document.querySelectorAll(selector).forEach((el) => {
+//               el.classList.add("darkfix-media");
+//             });
+//           });
+
+//           fixBackgroundImages();
+//         };
+
+//         fixMedia();
+
+//         if (mediaObserver) mediaObserver.disconnect();
+//         mediaObserver = new MutationObserver(fixMedia);
+//         mediaObserver.observe(document.body, {
+//           childList: true,
+//           subtree: true,
+//         });
+//       }
+
+//       // --- REVERT MODE ---
+//       if (message.command === "revert") {
+//         document.documentElement.classList.remove("darkfix-root");
+
+//         document.querySelectorAll(".darkfix-media").forEach((el) => {
+//           el.classList.remove("darkfix-media");
+//         });
+
+//         revertBackgroundImages();
+
+//         if (mediaObserver) {
+//           mediaObserver.disconnect();
+//           mediaObserver = null;
+//         }
+//       }
+//     });
+
+//     function injectStyles() {
+//       if (document.getElementById("darkfix-styles")) return;
+
+//       const style = document.createElement("style");
+//       style.id = "darkfix-styles";
+//       style.textContent = `
+//         .darkfix-root {
+//           filter: invert(1) hue-rotate(180deg) !important;
+//         }
+//         .darkfix-media {
+//           filter: invert(1) hue-rotate(180deg) !important;
+//         }
+//         .darkfix-bg {
+//           filter: invert(1) hue-rotate(180deg) !important;
+//         }
+//       `;
+//       document.head.appendChild(style);
+//     }
+//   },
+// });
 
 export default defineContentScript({
   matches: ["<all_urls>"],
@@ -163,109 +296,14 @@ export default defineContentScript({
     browser.runtime.onMessage.addListener((message) => {
       injectStyles();
 
-      const mediaSelectors = [
-        "img",
-        "picture img",
-        "source",
-        "video",
-        "svg",
-        "canvas",
-        "iframe",
-        "embed",
-        "object",
-      ];
-
-      const containsMedia = (el: Element) => {
-        return el.querySelector("img, video, svg, canvas") !== null;
-      };
-
-      const hasAnyImageContent = (
-        style: CSSStyleDeclaration,
-        tag: string,
-        isPseudo: boolean
-      ) => {
-        const hasBg = style.backgroundImage?.includes("url");
-        const hasMask = style.maskImage?.includes("url");
-
-        const hasList =
-          !isPseudo &&
-          (tag === "ul" || tag === "ol") &&
-          style.listStyleImage?.includes("url");
-
-        return hasBg || hasMask || hasList;
-      };
-
-      const fixBackgroundImages = () => {
-        document.querySelectorAll("*").forEach((el) => {
-          const tag = el.tagName.toLowerCase();
-
-          if (tag === "li") return;
-          if (containsMedia(el)) return;
-
-          const normal = getComputedStyle(el);
-          const before = getComputedStyle(el, "::before");
-          const after = getComputedStyle(el, "::after");
-
-          const hasAnyImg =
-            hasAnyImageContent(normal, tag, false) ||
-            hasAnyImageContent(before, tag, true) ||
-            hasAnyImageContent(after, tag, true);
-
-          if (!hasAnyImg) return;
-
-          el.classList.add("darkfix-bg");
-        });
-      };
-
-      const revertBackgroundImages = () => {
-        document.querySelectorAll(".darkfix-bg").forEach((el) => {
-          el.classList.remove("darkfix-bg");
-        });
-      };
-
-      // --- DARK MODE ---
-      if (message.command === "dark") {
-        document.documentElement.classList.add("darkfix-root");
-      }
-
-      // --- DARK MODE WITH IMAGE FIX ---
+      // --- ENABLE DARK MODE ---
       if (message.command === "darkFix") {
-        document.documentElement.classList.add("darkfix-root");
-
-        const fixMedia = () => {
-          mediaSelectors.forEach((selector) => {
-            document.querySelectorAll(selector).forEach((el) => {
-              el.classList.add("darkfix-media");
-            });
-          });
-
-          fixBackgroundImages();
-        };
-
-        fixMedia();
-
-        if (mediaObserver) mediaObserver.disconnect();
-        mediaObserver = new MutationObserver(fixMedia);
-        mediaObserver.observe(document.body, {
-          childList: true,
-          subtree: true,
-        });
+        document.documentElement.classList.add("darkfix");
       }
 
-      // --- REVERT MODE ---
+      // --- DISABLE DARK MODE ---
       if (message.command === "revert") {
-        document.documentElement.classList.remove("darkfix-root");
-
-        document.querySelectorAll(".darkfix-media").forEach((el) => {
-          el.classList.remove("darkfix-media");
-        });
-
-        revertBackgroundImages();
-
-        if (mediaObserver) {
-          mediaObserver.disconnect();
-          mediaObserver = null;
-        }
+        document.documentElement.classList.remove("darkfix");
       }
     });
 
@@ -275,13 +313,17 @@ export default defineContentScript({
       const style = document.createElement("style");
       style.id = "darkfix-styles";
       style.textContent = `
-        .darkfix-root {
+        /* Root inversion */
+        html.darkfix {
           filter: invert(1) hue-rotate(180deg) !important;
         }
-        .darkfix-media {
-          filter: invert(1) hue-rotate(180deg) !important;
-        }
-        .darkfix-bg {
+
+        /* Re-invert visual media */
+        html.darkfix img,
+        html.darkfix video,
+        html.darkfix canvas,
+        html.darkfix iframe,
+        html.darkfix svg {
           filter: invert(1) hue-rotate(180deg) !important;
         }
       `;

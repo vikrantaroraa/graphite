@@ -10,17 +10,9 @@ export default defineBackground(() => {
 
   // Sub-option: Dark Mode
   browser.contextMenus.create({
-    id: "dark",
-    parentId: "darkRoot",
-    title: "Dark Mode",
-    contexts: ["all"],
-  });
-
-  // Sub-option: Dark Mode + Color Fix
-  browser.contextMenus.create({
     id: "darkFix",
     parentId: "darkRoot",
-    title: "Dark Mode (Color Fix)",
+    title: "Dark Mode",
     contexts: ["all"],
   });
 
@@ -31,7 +23,6 @@ export default defineBackground(() => {
     title: "Revert",
     contexts: ["all"],
   });
-
   // Handle click
   browser.contextMenus.onClicked.addListener((info, tab) => {
     if (!tab?.id) return;
