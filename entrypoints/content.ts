@@ -292,42 +292,48 @@
 
 export default defineContentScript({
   matches: ["<all_urls>"],
-  main() {
-    browser.runtime.onMessage.addListener((message) => {
-      injectStyles();
+  async main() {
+    injectStyles();
 
-      // --- ENABLE DARK MODE ---
-      if (message.command === "darkFix") {
+    browser.runtime.onMessage.addListener((message) => {
+      if (message.command === "enable") {
         document.documentElement.classList.add("darkfix");
       }
 
-      // --- DISABLE DARK MODE ---
-      if (message.command === "revert") {
+      if (message.command === "disable") {
         document.documentElement.classList.remove("darkfix");
       }
     });
 
-    function injectStyles() {
-      if (document.getElementById("darkfix-styles")) return;
+    const tabId = await browser.runtime.sendMessage({ type: "GET_TAB_ID" });
+    if (!tabId) return;
 
-      const style = document.createElement("style");
-      style.id = "darkfix-styles";
-      style.textContent = `
-        /* Root inversion */
-        html.darkfix {
-          filter: invert(1) hue-rotate(180deg) !important;
-        }
+    const key = `darkfix:${tabId}`;
+    const stored = await browser.storage.local.get(key);
 
-        /* Re-invert visual media */
-        html.darkfix img,
-        html.darkfix video,
-        html.darkfix canvas,
-        html.darkfix iframe,
-        html.darkfix svg {
-          filter: invert(1) hue-rotate(180deg) !important;
-        }
-      `;
-      document.head.appendChild(style);
+    if (stored[key]) {
+      document.documentElement.classList.add("darkfix");
     }
   },
 });
+
+function injectStyles() {
+  if (document.getElementById("darkfix-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "darkfix-styles";
+  style.textContent = `
+    html.darkfix {
+      filter: invert(1) hue-rotate(180deg) !important;
+    }
+
+    html.darkfix img,
+    html.darkfix video,
+    html.darkfix canvas,
+    html.darkfix iframe,
+    html.darkfix svg {
+      filter: invert(1) hue-rotate(180deg) !important;
+    }
+  `;
+  document.head.appendChild(style);
+}

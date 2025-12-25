@@ -34,26 +34,9 @@
 // });
 
 export default defineBackground(() => {
-  let darkEnabled = false;
-  browser.runtime.onMessage.addListener(async (message, sender) => {
-    if (message.type === "TOGGLE_DARK") {
-      darkEnabled = message.enabled;
-
-      // Get active tab
-      const [tab] = await browser.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-
-      if (!tab?.id) return;
-
-      browser.tabs.sendMessage(tab.id, {
-        command: darkEnabled ? "darkFix" : "revert",
-      });
-    }
-
-    if (message.type === "GET_STATE") {
-      return Promise.resolve({ darkEnabled });
+  browser.runtime.onMessage.addListener((msg, sender) => {
+    if (msg.type === "GET_TAB_ID") {
+      return Promise.resolve(sender.tab?.id);
     }
   });
 });
